@@ -189,10 +189,20 @@ The quickstart script chooses the correct mode automatically.
 - `Evaluation`: structured judgment of output quality and route value
 - `Feedback event`: the evidence layer for adaptation
 
+## FAQ and onboarding
+
+If you want a fast explanation of how the system works and how to extend it, start here:
+
+- [docs/faq.md](/Users/stefanatanassov/Documents/New%20project/docs/faq.md)
+- [docs/contributors/how-to-add-task.md](/Users/stefanatanassov/Documents/New%20project/docs/contributors/how-to-add-task.md)
+- [docs/contributors/how-to-register-agent.md](/Users/stefanatanassov/Documents/New%20project/docs/contributors/how-to-register-agent.md)
+- [examples/guide-agent/taskmind-guide-agent.md](/Users/stefanatanassov/Documents/New%20project/examples/guide-agent/taskmind-guide-agent.md)
+
 ## Repository map
 
 - [src/taskmind](/Users/stefanatanassov/Documents/New%20project/src/taskmind)
 - [config/agents](/Users/stefanatanassov/Documents/New%20project/config/agents)
+- [examples](/Users/stefanatanassov/Documents/New%20project/examples)
 - [tests](/Users/stefanatanassov/Documents/New%20project/tests)
 - [docs/architecture/system-overview.md](/Users/stefanatanassov/Documents/New%20project/docs/architecture/system-overview.md)
 - [docs/contributors/getting-started.md](/Users/stefanatanassov/Documents/New%20project/docs/contributors/getting-started.md)
