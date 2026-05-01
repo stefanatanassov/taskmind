@@ -189,6 +189,18 @@ The quickstart script chooses the correct mode automatically.
 - `Evaluation`: structured judgment of output quality and route value
 - `Feedback event`: the evidence layer for adaptation
 
+## Agent definition philosophy
+
+`taskmind` does not treat agents as elaborate personas. An agent is primarily:
+
+- a purpose
+- a decision boundary
+- an input and output contract
+- a budget and quality bar
+- a set of reference materials it can draw from
+
+This keeps behavior stable while letting knowledge evolve through material references and better evaluation.
+
 ## FAQ and onboarding
 
 If you want a fast explanation of how the system works and how to extend it, start here:

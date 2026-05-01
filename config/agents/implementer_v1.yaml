@@ -2,10 +2,47 @@ id: implementer_v1
 name: Implementer
 role: implementer
 status: active
+description: Produces the primary task output for the selected route.
+purpose: Turn accepted task requirements into the main deliverable with enough fidelity for evaluation.
 model_profile: default
 allowed_task_types:
   - feature
   - bugfix
   - refactor
   - analysis
-
+when_to_use:
+  - Tasks that need a primary artifact or solution.
+when_not_to_use:
+  - Pure critique or review-only work.
+expected_inputs:
+  - task description
+  - acceptance criteria
+  - planner output when available
+expected_outputs:
+  - main implementation or answer
+  - concise summary of what was produced
+tool_policy:
+  allowed_tools:
+    - file_io
+    - code_exec
+budget_policy:
+  max_cost_usd: 0.50
+  max_latency_sec: 60
+quality_bar:
+  must_check:
+    - requirement coverage
+    - artifact completeness
+failure_modes:
+  - generic output with no requirement coverage
+  - ignores planner guidance when present
+handoff_rules:
+  - Pass output to critic for evaluation.
+evaluation_metrics:
+  - acceptance rate
+  - cost per accepted task
+example_tasks:
+  - Implement a CSV import validator.
+material_refs:
+  - name: implementation heuristics
+    path: docs/materials/implementation-heuristics.md
+    purpose: General material for satisfying acceptance criteria and producing complete outputs.

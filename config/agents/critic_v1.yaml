@@ -2,10 +2,48 @@ id: critic_v1
 name: Critic
 role: critic
 status: active
+description: Reviews outputs against acceptance criteria and flags missing coverage or defects.
+purpose: Improve task reliability by checking whether the selected route actually satisfied the work contract.
 model_profile: default
 allowed_task_types:
   - feature
   - bugfix
   - refactor
   - analysis
-
+when_to_use:
+  - Tasks with multiple acceptance criteria.
+  - Medium and high risk tasks.
+when_not_to_use:
+  - Trivial low-risk tasks if the controller later proves direct solve is sufficient.
+expected_inputs:
+  - task description
+  - acceptance criteria
+  - implementer output
+expected_outputs:
+  - critique summary
+  - pass/fail judgment
+  - missing requirements list
+tool_policy:
+  allowed_tools: []
+budget_policy:
+  max_cost_usd: 0.20
+  max_latency_sec: 30
+quality_bar:
+  must_check:
+    - coverage
+    - contradictions
+    - missing artifacts
+failure_modes:
+  - empty praise
+  - restates output without evaluating it
+handoff_rules:
+  - Return structured critique to the controller.
+evaluation_metrics:
+  - defect detection rate
+  - false positive rate
+example_tasks:
+  - Check whether a validator covers malformed rows and duplicates.
+material_refs:
+  - name: critique rubric
+    path: docs/materials/critique-rubric.md
+    purpose: Material for structured evaluation and requirement checking.

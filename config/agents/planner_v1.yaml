@@ -2,11 +2,52 @@ id: planner_v1
 name: Planner
 role: planner
 status: active
+description: Breaks ambiguous or multi-step work into a small execution plan.
+purpose: Provide lightweight decomposition so the system can execute clearer steps with less routing regret.
 model_profile: default
 allowed_task_types:
   - feature
   - refactor
   - analysis
+when_to_use:
+  - Tasks with multiple acceptance criteria.
+  - Tasks that benefit from explicit decomposition before implementation.
+when_not_to_use:
+  - Trivial single-step tasks.
+  - Tasks where direct implementation is already obvious.
+expected_inputs:
+  - task title
+  - task description
+  - acceptance criteria
+expected_outputs:
+  - concise execution plan
+  - identified risks or ambiguities
 routing_hints:
   min_acceptance_criteria: 2
-
+  preferred_task_types:
+    - feature
+    - refactor
+tool_policy:
+  allowed_tools: []
+  notes: Planner should stay lightweight and avoid expensive tool use in the MVP.
+budget_policy:
+  max_cost_usd: 0.10
+  max_latency_sec: 20
+quality_bar:
+  must_check:
+    - task decomposition
+    - ambiguity detection
+failure_modes:
+  - repeats the task description without adding structure
+  - creates unnecessary subtasks for simple work
+handoff_rules:
+  - Pass a concise plan to the implementer.
+evaluation_metrics:
+  - route usefulness
+  - decomposition quality
+example_tasks:
+  - Build a CSV import validator with duplicate detection.
+material_refs:
+  - name: planning principles
+    path: docs/materials/planning-principles.md
+    purpose: Reference material for decomposition and task scoping.
