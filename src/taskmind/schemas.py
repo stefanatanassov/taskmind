@@ -42,3 +42,33 @@ class RunRead(BaseModel):
 
     model_config = {"from_attributes": True}
 
+
+class FeedbackEventRead(BaseModel):
+    id: str
+    task_id: str
+    run_id: str
+    agent_id: str
+    agent_role: str
+    task_status: str
+    accepted: bool
+    usefulness_score: float
+    requirements_covered: float
+    criteria_total: int
+    route_length: int
+    reference_material_count: int
+    notes: str | None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class AgentUsefulnessRead(BaseModel):
+    agent_id: str
+    agent_role: str
+    total_runs: int
+    accepted_runs: int
+    average_usefulness: float
+    last_usefulness: float
+    last_updated: datetime
+
+    model_config = {"from_attributes": True}

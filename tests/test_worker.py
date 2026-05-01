@@ -4,7 +4,7 @@ import asyncio
 from dataclasses import dataclass
 
 from taskmind.db import SessionLocal
-from taskmind.models import Run
+from taskmind.models import AgentUsefulness, FeedbackEvent, Run
 from taskmind.providers.base import ModelResponse
 from taskmind.schemas import TaskCreate
 from taskmind.services.tasks import create_task
@@ -33,6 +33,11 @@ def test_worker_processes_queued_task():
         assert run.status in {"completed", "failed"}
         assert "implementer" in run.artifacts
         assert "Materials:" in run.artifacts["implementer"]
+        feedback_events = session.query(FeedbackEvent).all()
+        assert len(feedback_events) == 1
+        aggregate = session.query(AgentUsefulness).first()
+        assert aggregate is not None
+        assert aggregate.agent_role == "implementer"
 
 
 @dataclass
@@ -90,3 +95,7 @@ def test_worker_injects_agent_purpose_and_reference_materials(monkeypatch):
     critic_request = provider.requests[-1]
     assert critic_request.reference_material_names == ["critique rubric"]
     assert any("Check each acceptance criterion directly" in content for content in critic_request.reference_material_contents)
+
+    with SessionLocal() as session:
+        feedback_events = session.query(FeedbackEvent).all()
+        assert len(feedback_events) == 3

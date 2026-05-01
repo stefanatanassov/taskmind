@@ -27,6 +27,8 @@ It answers three concrete questions:
 - Poll queued tasks from a worker
 - Route tasks through the smallest useful execution path
 - Score outputs with a simple evaluation loop
+- Persist per-agent feedback events and usefulness aggregates
+- Expose analytics endpoints and a lightweight dashboard
 - Expose health and readiness endpoints
 - Run locally in Docker Compose
 - Support local or remote model providers through configuration
@@ -62,9 +64,14 @@ Submit a demo task after startup:
 
 Useful endpoints:
 
+- [http://localhost:8000/](http://localhost:8000/)
 - [http://localhost:8000/healthz](http://localhost:8000/healthz)
 - [http://localhost:8000/tasks](http://localhost:8000/tasks)
 - [http://localhost:8000/runs](http://localhost:8000/runs)
+- [http://localhost:8000/feedback](http://localhost:8000/feedback)
+- [http://localhost:8000/analytics/summary](http://localhost:8000/analytics/summary)
+- [http://localhost:8000/analytics/agents](http://localhost:8000/analytics/agents)
+- [http://localhost:8000/analytics/routes](http://localhost:8000/analytics/routes)
 
 ## Quickstart
 
@@ -246,8 +253,8 @@ docker compose -f docker-compose.yml -f docker-compose.ollama.yml down -v
 
 ## Next milestones
 
-- add a web dashboard
+- deepen usefulness scoring and route comparison heuristics
 - add richer evaluation rubrics
-- add adaptation proposals and agent usefulness scoring history
+- add adaptation proposals from historical feedback
 - add benchmark tasks
-- add GitHub workflows for CI and smoke verification
+- expand dashboard coverage and filtering

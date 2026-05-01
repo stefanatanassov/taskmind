@@ -13,6 +13,7 @@ from taskmind.evaluation import evaluate_run
 from taskmind.models import Run, Task
 from taskmind.providers.base import ModelRequest
 from taskmind.providers.router import get_provider
+from taskmind.services.feedback import record_feedback_events
 
 
 def utcnow() -> datetime:
@@ -60,10 +61,33 @@ async def process_next_task(provider=None, registry=None) -> bool:
             run.completed_at = utcnow()
             task.status = "completed" if evaluation["accepted"] else "failed"
         except Exception as exc:  # pragma: no cover
+            evaluation = {
+                "accepted": False,
+                "requirements_covered": 0.0,
+                "criteria_total": len(task.acceptance_criteria or []),
+                "criteria_hits": 0,
+                "matched_criteria": [],
+                "missing_criteria": task.acceptance_criteria or [],
+                "artifact_roles_present": sorted(artifacts.keys()),
+                "route_length": len(task.route or []),
+                "review_recommended": True,
+                "agent_was_necessary": len(task.route or []) > 1,
+                "notes": str(exc),
+            }
+            run.artifacts = artifacts
+            run.evaluation = evaluation
             run.error = str(exc)
             run.status = "failed"
             run.completed_at = utcnow()
             task.status = "failed"
+
+        runtime_profiles = {
+            role: registry.get_runtime_profile_for_role(role)
+            for role in task.route
+            if registry.get_runtime_profile_for_role(role) is not None
+        }
+        if runtime_profiles:
+            record_feedback_events(session, task, run, runtime_profiles, run.evaluation)
 
         session.add(task)
         session.add(run)

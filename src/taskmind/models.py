@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from sqlalchemy import DateTime, ForeignKey, JSON, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from taskmind.db import Base
@@ -34,6 +34,7 @@ class Task(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)
 
     runs: Mapped[list["Run"]] = relationship(back_populates="task")
+    feedback_events: Mapped[list["FeedbackEvent"]] = relationship(back_populates="task")
 
 
 class Run(Base):
@@ -50,3 +51,38 @@ class Run(Base):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     task: Mapped[Task] = relationship(back_populates="runs")
+    feedback_events: Mapped[list["FeedbackEvent"]] = relationship(back_populates="run")
+
+
+class FeedbackEvent(Base):
+    __tablename__ = "feedback_events"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    task_id: Mapped[str] = mapped_column(String(36), ForeignKey("tasks.id"), nullable=False)
+    run_id: Mapped[str] = mapped_column(String(36), ForeignKey("runs.id"), nullable=False)
+    agent_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    agent_role: Mapped[str] = mapped_column(String(50), nullable=False)
+    task_status: Mapped[str] = mapped_column(String(20), nullable=False)
+    accepted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    usefulness_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    requirements_covered: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    criteria_total: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    route_length: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    reference_material_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+    task: Mapped[Task] = relationship(back_populates="feedback_events")
+    run: Mapped[Run] = relationship(back_populates="feedback_events")
+
+
+class AgentUsefulness(Base):
+    __tablename__ = "agent_usefulness"
+
+    agent_id: Mapped[str] = mapped_column(String(100), primary_key=True)
+    agent_role: Mapped[str] = mapped_column(String(50), nullable=False)
+    total_runs: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    accepted_runs: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    average_usefulness: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    last_usefulness: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)

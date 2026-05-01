@@ -36,16 +36,23 @@ The next priority is not more infrastructure. It is learning and observability:
 - pytest coverage for core behavior
 - GitHub Actions smoke validation
 
-## v0.2 Next: Feedback and usefulness
+## v0.2 In Progress: Feedback and usefulness
 
 Goal: make the system measurably self-informing.
 
-- add explicit feedback records beyond embedded run evaluation
-- add agent usefulness score history
-- add route analytics
-- add richer evaluation rubric fields
-- add failed-run inspection and error summaries
-- add a lightweight dashboard for tasks, runs, and agent performance
+Completed in this slice:
+
+- explicit feedback records beyond embedded run evaluation
+- agent usefulness aggregates and score history through feedback events
+- route analytics
+- richer evaluation rubric fields
+- a lightweight dashboard for tasks, runs, feedback, and agent performance
+
+Still remaining in v0.2:
+
+- clearer failed-run inspection views and error summaries
+- stronger usefulness heuristics and comparison logic
+- richer dashboard filtering and drill-down support
 
 Success criteria:
 
