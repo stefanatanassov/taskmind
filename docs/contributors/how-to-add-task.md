@@ -13,7 +13,7 @@ The API accepts:
 
 The request schema is defined in:
 
-- [src/taskmind/schemas.py](/Users/stefanatanassov/Documents/New%20project/src/taskmind/schemas.py)
+- [src/taskmind/schemas.py](../../src/taskmind/schemas.py)
 
 ## Example
 
@@ -51,4 +51,3 @@ curl -X POST http://localhost:8000/tasks \
 curl http://localhost:8000/tasks
 curl http://localhost:8000/runs
 ```
-

@@ -49,17 +49,17 @@ Add a YAML file under `config/agents/`, then make sure the controller knows when
 
 Start with:
 
-- [docs/contributors/how-to-register-agent.md](/Users/stefanatanassov/Documents/New%20project/docs/contributors/how-to-register-agent.md)
+- [docs/contributors/how-to-register-agent.md](contributors/how-to-register-agent.md)
 
 ## Where is routing logic defined?
 
-The current MVP route selection is in [src/taskmind/controller.py](/Users/stefanatanassov/Documents/New%20project/src/taskmind/controller.py).
+The current MVP route selection is in [src/taskmind/controller.py](../src/taskmind/controller.py).
 
 ## Where are tasks and runs stored?
 
 The SQL models live in:
 
-- [src/taskmind/models.py](/Users/stefanatanassov/Documents/New%20project/src/taskmind/models.py)
+- [src/taskmind/models.py](../src/taskmind/models.py)
 
 ## How do I switch models?
 
@@ -71,18 +71,17 @@ Set the provider through `.env` or the quickstart script:
 
 See:
 
-- [README.md](/Users/stefanatanassov/Documents/New%20project/README.md)
-- [scripts/quickstart.sh](/Users/stefanatanassov/Documents/New%20project/scripts/quickstart.sh)
+- [README.md](../README.md)
+- [scripts/quickstart.sh](../scripts/quickstart.sh)
 
 ## How do I tweak behavior?
 
 There are three main levers:
 
-1. Change routing logic in [src/taskmind/controller.py](/Users/stefanatanassov/Documents/New%20project/src/taskmind/controller.py)
-2. Change provider/model selection in `.env` or [scripts/quickstart.sh](/Users/stefanatanassov/Documents/New%20project/scripts/quickstart.sh)
-3. Change evaluation heuristics in [src/taskmind/evaluation.py](/Users/stefanatanassov/Documents/New%20project/src/taskmind/evaluation.py)
+1. Change routing logic in [src/taskmind/controller.py](../src/taskmind/controller.py)
+2. Change provider/model selection in `.env` or [scripts/quickstart.sh](../scripts/quickstart.sh)
+3. Change evaluation heuristics in [src/taskmind/evaluation.py](../src/taskmind/evaluation.py)
 
 ## Should the help assistant be part of runtime orchestration?
 
 No. Keep explanation and onboarding separate from the task execution loop. A guide assistant is useful for documentation and contributor help, but it should not become part of the control plane.
-

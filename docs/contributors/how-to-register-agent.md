@@ -19,15 +19,15 @@ allowed_task_types:
 
 Existing examples:
 
-- [config/agents/planner_v1.yaml](/Users/stefanatanassov/Documents/New%20project/config/agents/planner_v1.yaml)
-- [config/agents/implementer_v1.yaml](/Users/stefanatanassov/Documents/New%20project/config/agents/implementer_v1.yaml)
-- [config/agents/critic_v1.yaml](/Users/stefanatanassov/Documents/New%20project/config/agents/critic_v1.yaml)
+- [config/agents/planner_v1.yaml](../../config/agents/planner_v1.yaml)
+- [config/agents/implementer_v1.yaml](../../config/agents/implementer_v1.yaml)
+- [config/agents/critic_v1.yaml](../../config/agents/critic_v1.yaml)
 
 ## Step 2: teach the controller when to use it
 
 The current routing policy is explicit and lives in:
 
-- [src/taskmind/controller.py](/Users/stefanatanassov/Documents/New%20project/src/taskmind/controller.py)
+- [src/taskmind/controller.py](../../src/taskmind/controller.py)
 
 If you add a new role, update route selection so tasks can actually choose it.
 
@@ -54,4 +54,3 @@ pytest
 ## Important design rule
 
 Help agents and guide agents are fine, but keep them outside the runtime control plane unless they provide measurable execution value.
-
