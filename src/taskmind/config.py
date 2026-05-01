@@ -6,7 +6,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     env: str = "development"
     database_url: str = "sqlite+pysqlite:///:memory:"
-    redis_url: str = "redis://localhost:6379/0"
     provider: str = "mock"
     model: str = "gpt-oss"
     provider_base_url: str | None = None
@@ -20,4 +19,3 @@ class Settings(BaseSettings):
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()
-

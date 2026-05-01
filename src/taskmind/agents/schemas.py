@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
+from taskmind.providers.base import ReferenceMaterial
+
 
 class MaterialReference(BaseModel):
     name: str
@@ -53,3 +55,10 @@ class AgentContract(BaseModel):
     example_tasks: list[str] = Field(default_factory=list)
     material_refs: list[MaterialReference] = Field(default_factory=list)
 
+
+class AgentRuntimeProfile(BaseModel):
+    id: str
+    role: str
+    purpose: str
+    expected_outputs: list[str] = Field(default_factory=list)
+    reference_materials: list[ReferenceMaterial] = Field(default_factory=list)

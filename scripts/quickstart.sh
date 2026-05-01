@@ -21,7 +21,6 @@ write_env() {
   cat > "${ENV_FILE}" <<EOF
 TASKMIND_ENV=development
 TASKMIND_DATABASE_URL=postgresql+psycopg://taskmind:taskmind@postgres:5432/taskmind
-TASKMIND_REDIS_URL=redis://redis:6379/0
 TASKMIND_PROVIDER=${TASKMIND_PROVIDER}
 TASKMIND_MODEL=${TASKMIND_MODEL}
 TASKMIND_PROVIDER_BASE_URL=${TASKMIND_PROVIDER_BASE_URL}
@@ -36,7 +35,7 @@ start_mock() {
   TASKMIND_PROVIDER_BASE_URL=""
   TASKMIND_PROVIDER_API_KEY=""
   write_env
-  docker compose up --build -d
+  docker compose up --build -d --remove-orphans
 }
 
 start_ollama() {
@@ -45,7 +44,7 @@ start_ollama() {
   TASKMIND_PROVIDER_BASE_URL="${TASKMIND_PROVIDER_BASE_URL:-http://ollama:11434}"
   TASKMIND_PROVIDER_API_KEY=""
   write_env
-  docker compose -f docker-compose.yml -f docker-compose.ollama.yml up --build -d
+  docker compose -f docker-compose.yml -f docker-compose.ollama.yml up --build -d --remove-orphans
 }
 
 start_openai_compatible() {
@@ -56,7 +55,7 @@ start_openai_compatible() {
   TASKMIND_PROVIDER="openai_compatible"
   TASKMIND_MODEL="${TASKMIND_MODEL:-gpt-4.1-mini}"
   write_env
-  docker compose up --build -d
+  docker compose up --build -d --remove-orphans
 }
 
 echo "Starting taskmind in '${MODE}' mode..."

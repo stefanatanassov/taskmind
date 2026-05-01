@@ -6,7 +6,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 os.environ["TASKMIND_DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
-os.environ["TASKMIND_REDIS_URL"] = "redis://localhost:6379/0"
 os.environ["TASKMIND_PROVIDER"] = "mock"
 
 from taskmind.api.main import app

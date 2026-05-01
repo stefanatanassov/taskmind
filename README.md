@@ -7,7 +7,6 @@ This first iteration is intentionally narrow:
 - one API
 - one worker
 - one Postgres database
-- one Redis instance
 - three built-in agents: planner, implementer, critic
 - one provider abstraction with `mock`, `ollama`, and OpenAI-compatible support
 
@@ -26,7 +25,7 @@ It answers three concrete questions:
 - Create tasks over HTTP
 - Persist tasks and runs in Postgres
 - Poll queued tasks from a worker
-- Route tasks through planner, implementer, and critic
+- Route tasks through the smallest useful execution path
 - Score outputs with a simple evaluation loop
 - Expose health and readiness endpoints
 - Run locally in Docker Compose
@@ -176,7 +175,7 @@ TASKMIND_PROVIDER_API_KEY=your_key
 
 ## Docker modes
 
-- `docker compose up --build`: API, worker, Postgres, Redis
+- `docker compose up --build`: API, worker, Postgres
 - `docker compose -f docker-compose.yml -f docker-compose.ollama.yml up --build`: core stack plus Ollama
 
 The quickstart script chooses the correct mode automatically.
@@ -200,6 +199,14 @@ The quickstart script chooses the correct mode automatically.
 - a set of reference materials it can draw from
 
 This keeps behavior stable while letting knowledge evolve through material references and better evaluation.
+
+At runtime, the full authoring contract is compiled into a smaller execution profile:
+
+- purpose
+- expected outputs
+- loaded reference materials
+
+That keeps contributor-facing definitions rich without making the execution path unnecessarily heavy.
 
 ## FAQ and onboarding
 

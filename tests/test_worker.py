@@ -73,7 +73,7 @@ def test_worker_injects_agent_purpose_and_reference_materials(monkeypatch):
                 description="Verify references are injected.",
                 task_type="feature",
                 risk_level="medium",
-                acceptance_criteria=["use reference materials", "produce grounded output"],
+                acceptance_criteria=["use reference materials", "produce grounded output", "require planning"],
             ),
         )
 

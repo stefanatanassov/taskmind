@@ -3,7 +3,6 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException
-from redis import Redis
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -32,9 +31,7 @@ def healthz() -> dict:
 @app.get("/readyz")
 def readyz(session: Session = Depends(get_session)) -> dict:
     session.execute(text("SELECT 1"))
-    redis_client = Redis.from_url(settings.redis_url)
-    redis_ok = redis_client.ping()
-    return {"status": "ready", "database": "ok", "redis": "ok" if redis_ok else "unavailable"}
+    return {"status": "ready", "database": "ok"}
 
 
 @app.post("/tasks", response_model=TaskRead, status_code=201)

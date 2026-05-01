@@ -6,13 +6,10 @@ services:
       - .env
     environment:
       TASKMIND_DATABASE_URL: postgresql+psycopg://taskmind:taskmind@postgres:5432/taskmind
-      TASKMIND_REDIS_URL: redis://redis:6379/0
     ports:
       - "8000:8000"
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz').read()"]
@@ -27,11 +24,8 @@ services:
       - .env
     environment:
       TASKMIND_DATABASE_URL: postgresql+psycopg://taskmind:taskmind@postgres:5432/taskmind
-      TASKMIND_REDIS_URL: redis://redis:6379/0
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-m", "taskmind.worker.main", "--healthcheck"]
@@ -55,16 +49,5 @@ services:
       timeout: 5s
       retries: 10
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-
 volumes:
   postgres_data:
-

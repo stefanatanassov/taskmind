@@ -12,7 +12,7 @@ def test_select_route_for_feature_task():
         risk_level="medium",
         acceptance_criteria=["one", "two"],
     )
-    assert select_route(task) == ["planner", "implementer", "critic"]
+    assert select_route(task) == ["implementer", "critic"]
 
 
 def test_select_route_for_simple_task():
@@ -23,5 +23,15 @@ def test_select_route_for_simple_task():
         risk_level="low",
         acceptance_criteria=["one"],
     )
-    assert select_route(task) == ["implementer", "critic"]
+    assert select_route(task) == ["implementer"]
 
+
+def test_select_route_for_ambiguous_task():
+    task = Task(
+        title="Ambiguous",
+        description="Complex feature",
+        task_type="feature",
+        risk_level="medium",
+        acceptance_criteria=["one", "two", "three"],
+    )
+    assert select_route(task) == ["planner", "implementer", "critic"]

@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 from datetime import UTC, datetime
-from pathlib import Path
 
 from sqlalchemy import select, text
 
@@ -12,7 +11,7 @@ from taskmind.config import get_settings
 from taskmind.db import Base, SessionLocal, engine
 from taskmind.evaluation import evaluate_run
 from taskmind.models import Run, Task
-from taskmind.providers.base import ModelRequest, ReferenceMaterial
+from taskmind.providers.base import ModelRequest
 from taskmind.providers.router import get_provider
 
 
@@ -20,24 +19,9 @@ def utcnow() -> datetime:
     return datetime.now(UTC)
 
 
-def load_reference_materials(contract) -> list[ReferenceMaterial]:
-    materials: list[ReferenceMaterial] = []
-    for material_ref in contract.material_refs:
-        path = Path(material_ref.path)
-        with path.open("r", encoding="utf-8") as handle:
-            materials.append(
-                ReferenceMaterial(
-                    name=material_ref.name,
-                    purpose=material_ref.purpose,
-                    content=handle.read(),
-                )
-            )
-    return materials
-
-
-async def process_next_task() -> bool:
-    provider = get_provider()
-    registry = AgentRegistry()
+async def process_next_task(provider=None, registry=None) -> bool:
+    provider = provider or get_provider()
+    registry = registry or AgentRegistry()
     with SessionLocal() as session:
         task = session.scalars(select(Task).where(Task.status == "queued").order_by(Task.created_at.asc())).first()
         if not task:
@@ -52,18 +36,18 @@ async def process_next_task() -> bool:
         artifacts: dict[str, str] = {}
         try:
             for role in task.route:
-                contract = registry.get_agent_for_role(role)
-                if contract is None:
-                    raise ValueError(f"No active agent contract found for role '{role}'")
+                runtime_profile = registry.get_runtime_profile_for_role(role)
+                if runtime_profile is None:
+                    raise ValueError(f"No active agent runtime profile found for role '{role}'")
                 response = await provider.generate(
                     ModelRequest(
                         role=role,
                         task_title=task.title,
                         task_description=task.description,
                         acceptance_criteria=task.acceptance_criteria,
-                        agent_purpose=contract.purpose,
-                        expected_outputs=contract.expected_outputs,
-                        reference_materials=load_reference_materials(contract),
+                        agent_purpose=runtime_profile.purpose,
+                        expected_outputs=runtime_profile.expected_outputs,
+                        reference_materials=runtime_profile.reference_materials,
                         context={"task_id": task.id, "prior_artifacts": artifacts},
                     )
                 )
@@ -97,8 +81,10 @@ def healthcheck() -> int:
 async def run_forever() -> None:
     settings = get_settings()
     Base.metadata.create_all(bind=engine)
+    provider = get_provider()
+    registry = AgentRegistry()
     while True:
-        processed = await process_next_task()
+        processed = await process_next_task(provider=provider, registry=registry)
         await asyncio.sleep(settings.worker_poll_interval if not processed else 1)
 
 
