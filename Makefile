@@ -1,4 +1,4 @@
-.PHONY: install test run-api run-worker verify
+.PHONY: install test run-api run-worker verify quickstart-mock quickstart-ollama quickstart-openai-compatible demo-task
 
 install:
 	python3 -m venv .venv
@@ -16,3 +16,14 @@ run-worker:
 verify:
 	./scripts/verify_stack.sh
 
+quickstart-mock:
+	./scripts/quickstart.sh mock
+
+quickstart-ollama:
+	./scripts/quickstart.sh ollama
+
+quickstart-openai-compatible:
+	./scripts/quickstart.sh openai-compatible
+
+demo-task:
+	./scripts/demo_task.sh

@@ -32,6 +32,41 @@ It answers three concrete questions:
 - Run locally in Docker Compose
 - Support local or remote model providers through configuration
 
+## One-command quickstart
+
+Mock provider, no external credentials:
+
+```bash
+./scripts/quickstart.sh mock
+```
+
+Local Ollama:
+
+```bash
+./scripts/quickstart.sh ollama
+```
+
+Remote OpenAI-compatible provider:
+
+```bash
+TASKMIND_PROVIDER_BASE_URL=https://api.openai.com/v1 \
+TASKMIND_PROVIDER_API_KEY=your_key \
+TASKMIND_MODEL=gpt-4.1-mini \
+./scripts/quickstart.sh openai-compatible
+```
+
+Submit a demo task after startup:
+
+```bash
+./scripts/demo_task.sh
+```
+
+Useful endpoints:
+
+- [http://localhost:8000/healthz](http://localhost:8000/healthz)
+- [http://localhost:8000/tasks](http://localhost:8000/tasks)
+- [http://localhost:8000/runs](http://localhost:8000/runs)
+
 ## Quickstart
 
 1. Copy the environment file:
@@ -77,6 +112,32 @@ curl http://localhost:8000/tasks
 curl http://localhost:8000/runs
 ```
 
+## Demo flows
+
+### Demo 1: mock mode
+
+```bash
+./scripts/quickstart.sh mock
+./scripts/demo_task.sh
+```
+
+### Demo 2: local Ollama
+
+```bash
+./scripts/quickstart.sh ollama
+./scripts/demo_task.sh
+```
+
+### Demo 3: remote provider
+
+```bash
+TASKMIND_PROVIDER_BASE_URL=https://api.openai.com/v1 \
+TASKMIND_PROVIDER_API_KEY=your_key \
+TASKMIND_MODEL=gpt-4.1-mini \
+./scripts/quickstart.sh openai-compatible
+./scripts/demo_task.sh
+```
+
 ## Model providers
 
 The default provider is `mock` so the stack works without external credentials.
@@ -113,6 +174,13 @@ TASKMIND_PROVIDER_BASE_URL=https://api.openai.com/v1
 TASKMIND_PROVIDER_API_KEY=your_key
 ```
 
+## Docker modes
+
+- `docker compose up --build`: API, worker, Postgres, Redis
+- `docker compose -f docker-compose.yml -f docker-compose.ollama.yml up --build`: core stack plus Ollama
+
+The quickstart script chooses the correct mode automatically.
+
 ## Core concepts
 
 - `Task`: the unit of work and control plane object
@@ -140,6 +208,13 @@ pip install -e .[dev]
 pytest
 ```
 
+Shutdown:
+
+```bash
+docker compose down -v
+docker compose -f docker-compose.yml -f docker-compose.ollama.yml down -v
+```
+
 ## Next milestones
 
 - add a web dashboard
@@ -147,4 +222,3 @@ pytest
 - add adaptation proposals and agent usefulness scoring history
 - add benchmark tasks
 - add GitHub workflows for CI and smoke verification
-
