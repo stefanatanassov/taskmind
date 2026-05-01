@@ -22,3 +22,7 @@ class AgentRegistry:
 
     def get_agents_for_role(self, role: str) -> list[AgentContract]:
         return [agent for agent in self.list_agents() if agent.role == role and agent.status == "active"]
+
+    def get_agent_for_role(self, role: str) -> AgentContract | None:
+        agents = self.get_agents_for_role(role)
+        return agents[0] if agents else None

@@ -3,14 +3,16 @@ from __future__ import annotations
 import argparse
 import asyncio
 from datetime import UTC, datetime
+from pathlib import Path
 
 from sqlalchemy import select, text
 
+from taskmind.agents.registry import AgentRegistry
 from taskmind.config import get_settings
 from taskmind.db import Base, SessionLocal, engine
 from taskmind.evaluation import evaluate_run
 from taskmind.models import Run, Task
-from taskmind.providers.base import ModelRequest
+from taskmind.providers.base import ModelRequest, ReferenceMaterial
 from taskmind.providers.router import get_provider
 
 
@@ -18,8 +20,24 @@ def utcnow() -> datetime:
     return datetime.now(UTC)
 
 
+def load_reference_materials(contract) -> list[ReferenceMaterial]:
+    materials: list[ReferenceMaterial] = []
+    for material_ref in contract.material_refs:
+        path = Path(material_ref.path)
+        with path.open("r", encoding="utf-8") as handle:
+            materials.append(
+                ReferenceMaterial(
+                    name=material_ref.name,
+                    purpose=material_ref.purpose,
+                    content=handle.read(),
+                )
+            )
+    return materials
+
+
 async def process_next_task() -> bool:
     provider = get_provider()
+    registry = AgentRegistry()
     with SessionLocal() as session:
         task = session.scalars(select(Task).where(Task.status == "queued").order_by(Task.created_at.asc())).first()
         if not task:
@@ -34,12 +52,18 @@ async def process_next_task() -> bool:
         artifacts: dict[str, str] = {}
         try:
             for role in task.route:
+                contract = registry.get_agent_for_role(role)
+                if contract is None:
+                    raise ValueError(f"No active agent contract found for role '{role}'")
                 response = await provider.generate(
                     ModelRequest(
                         role=role,
                         task_title=task.title,
                         task_description=task.description,
                         acceptance_criteria=task.acceptance_criteria,
+                        agent_purpose=contract.purpose,
+                        expected_outputs=contract.expected_outputs,
+                        reference_materials=load_reference_materials(contract),
                         context={"task_id": task.id, "prior_artifacts": artifacts},
                     )
                 )
