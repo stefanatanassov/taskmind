@@ -1,0 +1,11 @@
+id: implementer_v1
+name: Implementer
+role: implementer
+status: active
+model_profile: default
+allowed_task_types:
+  - feature
+  - bugfix
+  - refactor
+  - analysis
+

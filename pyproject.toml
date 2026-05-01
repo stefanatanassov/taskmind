@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "taskmind"
+version = "0.1.0"
+description = "Task-driven adaptive agent orchestration MVP"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115.0,<1.0.0",
+  "uvicorn[standard]>=0.30.0,<1.0.0",
+  "sqlalchemy>=2.0.32,<3.0.0",
+  "psycopg[binary]>=3.2.1,<4.0.0",
+  "redis>=5.0.8,<6.0.0",
+  "httpx>=0.27.0,<1.0.0",
+  "pydantic>=2.8.2,<3.0.0",
+  "pydantic-settings>=2.4.0,<3.0.0",
+  "pyyaml>=6.0.2,<7.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.2,<9.0.0",
+  "pytest-cov>=5.0.0,<6.0.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+

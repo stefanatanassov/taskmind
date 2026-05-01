@@ -1,0 +1,12 @@
+id: planner_v1
+name: Planner
+role: planner
+status: active
+model_profile: default
+allowed_task_types:
+  - feature
+  - refactor
+  - analysis
+routing_hints:
+  min_acceptance_criteria: 2
+

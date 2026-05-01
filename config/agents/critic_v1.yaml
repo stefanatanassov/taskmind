@@ -1,0 +1,11 @@
+id: critic_v1
+name: Critic
+role: critic
+status: active
+model_profile: default
+allowed_task_types:
+  - feature
+  - bugfix
+  - refactor
+  - analysis
+
