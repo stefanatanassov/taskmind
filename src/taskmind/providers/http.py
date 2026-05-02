@@ -27,6 +27,9 @@ class OpenAICompatibleProvider:
                 },
                 {"role": "user", "content": build_execution_prompt(request)},
             ],
+            "max_tokens": 384,
+            "temperature": 0.2,
+            "stop": ["<|im_end|>"],
         }
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=payload)

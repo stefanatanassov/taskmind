@@ -21,11 +21,15 @@ class Task(Base):
     __tablename__ = "tasks"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    parent_task_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("tasks.id"), nullable=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     task_type: Mapped[str] = mapped_column(String(50), nullable=False)
     risk_level: Mapped[str] = mapped_column(String(20), nullable=False, default="medium")
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="queued")
+    orchestration_kind: Mapped[str] = mapped_column(String(20), nullable=False, default="primary")
+    orchestration_depth: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    orchestration_metadata: Mapped[dict] = mapped_column(JSON, default=dict)
     acceptance_criteria: Mapped[list[str]] = mapped_column(JSON, default=list)
     required_artifacts: Mapped[list[str]] = mapped_column(JSON, default=list)
     route: Mapped[list[str]] = mapped_column(JSON, default=list)

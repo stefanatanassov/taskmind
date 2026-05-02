@@ -32,6 +32,7 @@ It answers three concrete questions:
 - Expose health and readiness endpoints
 - Run locally in Docker Compose
 - Support local or remote model providers through configuration
+- Dynamically decompose broader tasks into delegated child slices when a weaker local model is in use
 
 ## One-command quickstart
 
@@ -109,6 +110,17 @@ supervisor/
 ```
 
 The full protocol is documented in [docs/supervisor-mode.md](docs/supervisor-mode.md).
+
+## Adaptive decomposition
+
+When `taskmind` detects a weaker local model tier, the orchestrator can split a broader primary task into smaller delegated child tasks on the fly instead of forcing a single large run. The queue remains the control plane:
+
+- parent task moves to `waiting_on_subtasks`
+- delegated child tasks are queued with narrower acceptance slices
+- once children complete, a synthesis task is queued
+- the synthesis result finalizes the parent task
+
+This keeps orchestration logic in the system rather than hiding it inside prompts.
 
 ## Quickstart
 

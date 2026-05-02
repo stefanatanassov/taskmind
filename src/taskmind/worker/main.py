@@ -11,6 +11,7 @@ from taskmind.config import get_settings
 from taskmind.db import Base, SessionLocal, engine
 from taskmind.evaluation import evaluate_run
 from taskmind.models import Run, Task
+from taskmind.orchestration import advance_orchestration, pick_next_executable_task
 from taskmind.providers.base import ModelRequest
 from taskmind.providers.router import get_provider
 from taskmind.schema import ensure_runtime_schema
@@ -26,7 +27,11 @@ async def process_next_task(provider=None, registry=None) -> bool:
     provider = provider or get_provider()
     registry = registry or AgentRegistry()
     with SessionLocal() as session:
-        task = session.scalars(select(Task).where(Task.status == "queued").order_by(Task.created_at.asc())).first()
+        orchestration_step = advance_orchestration(session)
+        if orchestration_step is not None:
+            return True
+
+        task = pick_next_executable_task(session)
         if not task:
             return False
 

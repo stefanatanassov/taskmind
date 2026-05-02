@@ -110,7 +110,7 @@ def test_failure_analytics_endpoint(client):
     assert failures.status_code == 200
     body = failures.json()
     assert len(body) == 1
-    assert body[0]["failure_reason"] == "acceptance_criteria_missing"
+    assert body[0]["failure_reason"] == "low_signal_output"
     assert body[0]["missing_criteria_count"] == 2
 
     runs = client.get("/runs", params={"status": "failed", "route": "implementer -> critic"})

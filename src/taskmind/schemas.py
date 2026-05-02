@@ -14,11 +14,15 @@ class TaskCreate(BaseModel):
 
 class TaskRead(BaseModel):
     id: str
+    parent_task_id: str | None
     title: str
     description: str
     task_type: str
     risk_level: str
     status: str
+    orchestration_kind: str
+    orchestration_depth: int
+    orchestration_metadata: dict | None
     acceptance_criteria: list[str]
     required_artifacts: list[str]
     route: list[str]
