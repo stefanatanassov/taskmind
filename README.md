@@ -77,6 +77,19 @@ Useful endpoints:
 - [http://localhost:8000/adaptation/proposals](http://localhost:8000/adaptation/proposals)
 - [http://localhost:8000/review-checkpoints](http://localhost:8000/review-checkpoints)
 
+## FitSquad Phase 1 MVP
+
+This repo now also includes a working Phase 1 FitSquad tourism flow mounted inside the same FastAPI app:
+
+- public site: [http://localhost:8000/fitsquad/](http://localhost:8000/fitsquad/)
+- package details and reservation capture
+- deposit-or-full payment choice tracking
+- capacity protection against overbooking
+- reservation confirmation with generated email log entries
+- minimal admin view: [http://localhost:8000/fitsquad/admin](http://localhost:8000/fitsquad/admin)
+
+The FitSquad slice is intentionally constrained to the agreed Phase 1 scope. It does not add accounts, invoicing, CRM, contracts, or advanced reporting.
+
 ## Supervisor mode
 
 `taskmind` can also expose its current state as files so an external master agent can supervise in a loop without direct API integration.

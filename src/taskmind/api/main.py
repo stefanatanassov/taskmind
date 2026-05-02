@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from taskmind.config import get_settings
 from taskmind.db import Base, engine, get_session
+from taskmind.fitsquad.db import init_db as init_fitsquad_db
+from taskmind.fitsquad.router import router as fitsquad_router
 from taskmind.models import Run
 from taskmind.schema import ensure_runtime_schema
 from taskmind.schemas import (
@@ -45,10 +47,12 @@ settings = get_settings()
 async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
     ensure_runtime_schema(engine)
+    init_fitsquad_db()
     yield
 
 
 app = FastAPI(title="taskmind", version="0.1.0", lifespan=lifespan)
+app.include_router(fitsquad_router)
 
 
 def dashboard_html() -> str:
