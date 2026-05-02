@@ -207,6 +207,7 @@ The current MVP now exposes:
 - failed-run inspection with failure reason, missing criteria count, and error summaries
 - adaptation proposals generated from route underperformance, repeated criteria misses, and low-value agents
 - human review checkpoints for high-risk or review-recommended runs
+- proposal lifecycle decisions with review notes and implemented status
 - dashboard filters for run status, route, and feedback agent
 - run detail JSON at `/runs/{run_id}`
 
@@ -218,8 +219,43 @@ curl "http://localhost:8000/runs?route=implementer%20-%3E%20critic"
 curl "http://localhost:8000/feedback?agent_role=critic"
 curl "http://localhost:8000/analytics/failures?limit=10"
 curl -X POST "http://localhost:8000/adaptation/proposals/refresh"
+curl -X POST "http://localhost:8000/adaptation/proposals/<proposal-id>" \
+  -H "Content-Type: application/json" \
+  -d '{"status":"accepted","review_notes":"Use simpler route for this cohort."}'
 curl "http://localhost:8000/review-checkpoints"
 ```
+
+## Using it on a real project
+
+The current system can already execute a real project task end to end.
+
+Typical flow:
+
+1. create a task with clear acceptance criteria
+2. let the controller assign the route
+3. inspect the run, feedback, and any checkpoints
+4. review adaptation proposals if a route or agent looks wasteful
+
+Example:
+
+```bash
+curl -X POST http://localhost:8000/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Project kickoff scope",
+    "description": "Break down the first delivery slice and produce an implementation-ready output.",
+    "task_type": "feature",
+    "risk_level": "medium",
+    "acceptance_criteria": [
+      "state the delivery slice",
+      "identify implementation steps",
+      "return reviewable output"
+    ],
+    "required_artifacts": ["plan", "implementation", "critique"]
+  }'
+```
+
+If you want to use `taskmind` against your next real project, the missing part is not orchestration. It is feeding the project in as a properly scoped task instead of leaving it implicit.
 
 ## Agent definition philosophy
 
@@ -282,4 +318,4 @@ docker compose -f docker-compose.yml -f docker-compose.ollama.yml down -v
 - add benchmark tasks and replayable task packs
 - add benchmark-friendly provider comparison views
 - add richer proposal types for material and prompt tuning
-- add proposal acceptance workflows and audit notes
+- add proposal-to-policy application flows

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -7,11 +9,34 @@ from taskmind.models import AdaptationProposal, AgentUsefulness, ReviewCheckpoin
 from taskmind.services.analytics import build_failed_run_analytics, build_route_analytics
 
 
+def _utcnow() -> datetime:
+    return datetime.now(UTC)
+
+
 def list_adaptation_proposals(session: Session, status: str | None = None) -> list[AdaptationProposal]:
     stmt = select(AdaptationProposal).order_by(AdaptationProposal.created_at.desc())
     if status:
         stmt = stmt.where(AdaptationProposal.status == status)
     return list(session.scalars(stmt))
+
+
+def update_adaptation_proposal(
+    session: Session,
+    proposal_id: str,
+    *,
+    status: str,
+    review_notes: str | None = None,
+) -> AdaptationProposal | None:
+    proposal = session.get(AdaptationProposal, proposal_id)
+    if proposal is None:
+        return None
+    proposal.status = status
+    proposal.review_notes = review_notes
+    proposal.decided_at = _utcnow() if status in {"accepted", "rejected", "implemented"} else None
+    session.add(proposal)
+    session.commit()
+    session.refresh(proposal)
+    return proposal
 
 
 def refresh_adaptation_proposals(session: Session) -> list[AdaptationProposal]:

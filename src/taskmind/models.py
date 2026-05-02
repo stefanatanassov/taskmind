@@ -103,6 +103,8 @@ class AdaptationProposal(Base):
     rationale: Mapped[str] = mapped_column(Text, nullable=False)
     evidence: Mapped[dict] = mapped_column(JSON, default=dict)
     recommendation: Mapped[dict] = mapped_column(JSON, default=dict)
+    review_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     dedupe_key: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)

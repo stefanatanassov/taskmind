@@ -85,11 +85,18 @@ class AdaptationProposalRead(BaseModel):
     rationale: str
     evidence: dict
     recommendation: dict
+    review_notes: str | None
+    decided_at: datetime | None
     dedupe_key: str
     created_at: datetime
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class AdaptationProposalDecision(BaseModel):
+    status: str
+    review_notes: str | None = None
 
 
 class ReviewCheckpointRead(BaseModel):

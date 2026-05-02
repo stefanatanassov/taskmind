@@ -70,11 +70,12 @@ Completed in this slice:
 - material review proposals from repeated criteria misses
 - explicit human review checkpoints for high-risk or review-recommended runs
 - checkpoint decision endpoint for approve/reject/pending flow
+- proposal lifecycle decisions with review notes and implemented status
 
 Still remaining in v0.3:
 
 - richer proposal types for prompt and material tuning
-- proposal acceptance workflow with audit notes
+- proposal-to-policy application workflow
 - review checkpoints attached to more policy classes
 - dashboard controls for checkpoint decisions and proposal lifecycle
 

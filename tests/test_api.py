@@ -45,6 +45,7 @@ def test_dashboard_page(client):
     assert "Failed runs" in response.text
     assert "Adaptation proposals" in response.text
     assert "Review checkpoints" in response.text
+    assert "Accept" in response.text
 
 
 def test_analytics_endpoints(client):
@@ -134,7 +135,17 @@ def test_adaptation_and_review_endpoints(client):
     proposals = client.post("/adaptation/proposals/refresh")
     assert proposals.status_code == 200
     body = proposals.json()
-    assert any(item["proposal_type"] == "agent_deactivation" for item in body)
+    matching = [item for item in body if item["proposal_type"] == "agent_deactivation"]
+    assert matching
+    proposal_id = matching[0]["id"]
+
+    proposal_decision = client.post(
+        f"/adaptation/proposals/{proposal_id}",
+        json={"status": "accepted", "review_notes": "Keep for now but monitor future runs."},
+    )
+    assert proposal_decision.status_code == 200
+    assert proposal_decision.json()["status"] == "accepted"
+    assert proposal_decision.json()["review_notes"] == "Keep for now but monitor future runs."
 
     with SessionLocal() as session:
         create_task(

@@ -10,7 +10,9 @@ from sqlalchemy.orm import Session
 from taskmind.config import get_settings
 from taskmind.db import Base, engine, get_session
 from taskmind.models import Run
+from taskmind.schema import ensure_runtime_schema
 from taskmind.schemas import (
+    AdaptationProposalDecision,
     AdaptationProposalRead,
     AgentUsefulnessRead,
     FeedbackEventRead,
@@ -24,6 +26,7 @@ from taskmind.services.adaptation import (
     list_adaptation_proposals,
     list_review_checkpoints,
     refresh_adaptation_proposals,
+    update_adaptation_proposal,
     update_review_checkpoint,
 )
 from taskmind.services.analytics import (
@@ -41,6 +44,7 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
+    ensure_runtime_schema(engine)
     yield
 
 
@@ -72,6 +76,7 @@ def dashboard_html() -> str:
       label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
       select, button { background:#0e1629; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
       button { cursor:pointer; }
+      .button-row { display:flex; gap:8px; flex-wrap:wrap; }
       table { width:100%; border-collapse: collapse; }
       th, td { padding: 12px 10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
       th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
@@ -132,7 +137,7 @@ def dashboard_html() -> str:
         <div class="toolbar">
           <button id="refresh-proposals" type="button">Refresh proposals</button>
         </div>
-        <table><thead><tr><th>Type</th><th>Target</th><th>Priority</th><th>Status</th><th>Recommendation</th><th>Why</th></tr></thead><tbody id="proposals"></tbody></table>
+        <table><thead><tr><th>Type</th><th>Target</th><th>Priority</th><th>Status</th><th>Recommendation</th><th>Why</th><th>Actions</th></tr></thead><tbody id="proposals"></tbody></table>
       </div>
       <div class="section card">
         <h2>Failed runs</h2>
@@ -239,9 +244,16 @@ def dashboard_html() -> str:
             <td>${proposal.proposal_type}</td>
             <td><div class="stack"><span>${proposal.target_kind}</span><span class="muted">${proposal.target_id}</span></div></td>
             <td>${proposal.priority}</td>
-            <td>${proposal.status}</td>
+            <td><div class="stack"><span>${proposal.status}</span><span class="muted">${proposal.review_notes ?? ''}</span></div></td>
             <td>${proposal.recommendation.action ?? ''}</td>
             <td>${proposal.rationale}</td>
+            <td>
+              <div class="button-row">
+                <button type="button" onclick="decideProposal('${proposal.id}', 'accepted')">Accept</button>
+                <button type="button" onclick="decideProposal('${proposal.id}', 'rejected')">Reject</button>
+                <button type="button" onclick="decideProposal('${proposal.id}', 'implemented')">Done</button>
+              </div>
+            </td>
           </tr>`).join('');
       }
 
@@ -259,6 +271,18 @@ def dashboard_html() -> str:
       async function refreshProposals() {
         const response = await fetch('/adaptation/proposals/refresh', { method: 'POST' });
         allProposals = await response.json();
+        renderProposals();
+      }
+
+      async function decideProposal(id, status) {
+        const reviewNotes = window.prompt('Optional review notes:', '') ?? '';
+        const response = await fetch(`/adaptation/proposals/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status, review_notes: reviewNotes }),
+        });
+        const updated = await response.json();
+        allProposals = allProposals.map(proposal => proposal.id === updated.id ? updated : proposal);
         renderProposals();
       }
 
@@ -430,6 +454,25 @@ def adaptation_proposals_endpoint(
 def refresh_adaptation_proposals_endpoint(session: Session = Depends(get_session)) -> list[AdaptationProposalRead]:
     proposals = refresh_adaptation_proposals(session)
     return [AdaptationProposalRead.model_validate(item) for item in proposals]
+
+
+@app.post("/adaptation/proposals/{proposal_id}", response_model=AdaptationProposalRead)
+def update_adaptation_proposal_endpoint(
+    proposal_id: str,
+    payload: AdaptationProposalDecision,
+    session: Session = Depends(get_session),
+) -> AdaptationProposalRead:
+    if payload.status not in {"open", "accepted", "rejected", "implemented"}:
+        raise HTTPException(status_code=400, detail="Unsupported proposal status")
+    proposal = update_adaptation_proposal(
+        session,
+        proposal_id,
+        status=payload.status,
+        review_notes=payload.review_notes,
+    )
+    if proposal is None:
+        raise HTTPException(status_code=404, detail="Proposal not found")
+    return AdaptationProposalRead.model_validate(proposal)
 
 
 @app.get("/review-checkpoints", response_model=list[ReviewCheckpointRead])

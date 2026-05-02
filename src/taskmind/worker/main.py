@@ -13,6 +13,7 @@ from taskmind.evaluation import evaluate_run
 from taskmind.models import Run, Task
 from taskmind.providers.base import ModelRequest
 from taskmind.providers.router import get_provider
+from taskmind.schema import ensure_runtime_schema
 from taskmind.services.adaptation import ensure_review_checkpoint
 from taskmind.services.feedback import record_feedback_events
 
@@ -101,6 +102,7 @@ async def process_next_task(provider=None, registry=None) -> bool:
 
 def healthcheck() -> int:
     Base.metadata.create_all(bind=engine)
+    ensure_runtime_schema(engine)
     with SessionLocal() as session:
         session.execute(text("SELECT 1"))
     return 0
@@ -109,6 +111,7 @@ def healthcheck() -> int:
 async def run_forever() -> None:
     settings = get_settings()
     Base.metadata.create_all(bind=engine)
+    ensure_runtime_schema(engine)
     provider = get_provider()
     registry = AgentRegistry()
     while True:
