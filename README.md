@@ -28,7 +28,7 @@ It answers three concrete questions:
 - Route tasks through the smallest useful execution path
 - Score outputs with a simple evaluation loop
 - Persist per-agent feedback events and usefulness aggregates
-- Expose analytics endpoints and a lightweight dashboard
+- Expose analytics endpoints, failed-run inspection, and a lightweight dashboard
 - Expose health and readiness endpoints
 - Run locally in Docker Compose
 - Support local or remote model providers through configuration
@@ -72,6 +72,7 @@ Useful endpoints:
 - [http://localhost:8000/analytics/summary](http://localhost:8000/analytics/summary)
 - [http://localhost:8000/analytics/agents](http://localhost:8000/analytics/agents)
 - [http://localhost:8000/analytics/routes](http://localhost:8000/analytics/routes)
+- [http://localhost:8000/analytics/failures](http://localhost:8000/analytics/failures)
 
 ## Quickstart
 
@@ -195,6 +196,25 @@ The quickstart script chooses the correct mode automatically.
 - `Evaluation`: structured judgment of output quality and route value
 - `Feedback event`: the evidence layer for adaptation
 
+## Analytics and inspection
+
+The current MVP now exposes:
+
+- route-level success and coverage analytics with simpler-route comparison when a cohort baseline exists
+- per-agent usefulness aggregates backed by feedback events
+- failed-run inspection with failure reason, missing criteria count, and error summaries
+- dashboard filters for run status, route, and feedback agent
+- run detail JSON at `/runs/{run_id}`
+
+Useful filtered examples:
+
+```bash
+curl "http://localhost:8000/runs?status=failed"
+curl "http://localhost:8000/runs?route=implementer%20-%3E%20critic"
+curl "http://localhost:8000/feedback?agent_role=critic"
+curl "http://localhost:8000/analytics/failures?limit=10"
+```
+
 ## Agent definition philosophy
 
 `taskmind` does not treat agents as elaborate personas. An agent is primarily:
@@ -253,8 +273,7 @@ docker compose -f docker-compose.yml -f docker-compose.ollama.yml down -v
 
 ## Next milestones
 
-- deepen usefulness scoring and route comparison heuristics
-- add richer evaluation rubrics
 - add adaptation proposals from historical feedback
-- add benchmark tasks
-- expand dashboard coverage and filtering
+- add benchmark tasks and replayable task packs
+- add benchmark-friendly provider comparison views
+- add explicit human review checkpoints for higher-risk tasks

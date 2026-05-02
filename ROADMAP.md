@@ -15,7 +15,7 @@ This roadmap reflects the actual current state of `taskmind`, not just the origi
 - onboarding docs and guide-agent example
 - local tests and CI smoke validation
 
-The next priority is not more infrastructure. It is learning and observability:
+The next priority is still learning and observability, but the base `v0.2` layer is now in place:
 
 - can the system show which routes add value?
 - can it show which agents are worth keeping?
@@ -36,7 +36,7 @@ The next priority is not more infrastructure. It is learning and observability:
 - pytest coverage for core behavior
 - GitHub Actions smoke validation
 
-## v0.2 In Progress: Feedback and usefulness
+## v0.2 Complete: Feedback and usefulness
 
 Goal: make the system measurably self-informing.
 
@@ -46,13 +46,10 @@ Completed in this slice:
 - agent usefulness aggregates and score history through feedback events
 - route analytics
 - richer evaluation rubric fields
-- a lightweight dashboard for tasks, runs, feedback, and agent performance
-
-Still remaining in v0.2:
-
+- stronger usefulness heuristics with simpler-route comparison
 - clearer failed-run inspection views and error summaries
-- stronger usefulness heuristics and comparison logic
 - richer dashboard filtering and drill-down support
+- a lightweight dashboard for tasks, runs, feedback, and agent performance
 
 Success criteria:
 
@@ -104,10 +101,10 @@ Success criteria:
 
 The next concrete iteration should implement:
 
-1. feedback table or model
-2. usefulness scoring per agent
-3. run analytics endpoint
-4. minimal dashboard page
-5. documented rubric expansion
+1. adaptation proposal storage and API
+2. recommendation rules for route changes and low-value agents
+3. provider and route benchmark task packs
+4. optional review checkpoints for higher-risk tasks
+5. docs for reading analytics and acting on feedback
 
-That is the shortest path from “working orchestration MVP” to “adaptive system with visible value”.
+That is the shortest path from “visible learning MVP” to “guided adaptive system”.

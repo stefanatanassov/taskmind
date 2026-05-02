@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
+from taskmind.providers.base import ModelResponse
 from taskmind.db import SessionLocal
 from taskmind.schemas import TaskCreate
 from taskmind.services.tasks import create_task
@@ -40,6 +41,7 @@ def test_dashboard_page(client):
     assert response.status_code == 200
     assert "taskmind" in response.text
     assert "Agent usefulness" in response.text
+    assert "Failed runs" in response.text
 
 
 def test_analytics_endpoints(client):
@@ -68,7 +70,45 @@ def test_analytics_endpoints(client):
     routes = client.get("/analytics/routes")
     assert routes.status_code == 200
     assert routes.json()[0]["route"] == "planner -> implementer -> critic"
+    assert "comparison_baseline_route" in routes.json()[0]
 
     feedback = client.get("/feedback")
     assert feedback.status_code == 200
     assert len(feedback.json()) == 3
+
+    filtered_feedback = client.get("/feedback", params={"agent_role": "critic"})
+    assert filtered_feedback.status_code == 200
+    assert len(filtered_feedback.json()) == 1
+
+    runs = client.get("/runs", params={"status": "completed"})
+    assert runs.status_code == 200
+    assert len(runs.json()) == 1
+
+
+def test_failure_analytics_endpoint(client):
+    class SparseProvider:
+        async def generate(self, request):
+            return ModelResponse(content=f"{request.role} fallback output", metadata={})
+
+    payload = {
+        "title": "Failure task",
+        "description": "Miss acceptance criteria on purpose.",
+        "task_type": "analysis",
+        "risk_level": "low",
+        "acceptance_criteria": ["missing one", "missing two"],
+    }
+    response = client.post("/tasks", json=payload)
+    assert response.status_code == 201
+    assert response.json()["route"] == ["implementer", "critic"]
+    asyncio.run(process_next_task(provider=SparseProvider()))
+
+    failures = client.get("/analytics/failures")
+    assert failures.status_code == 200
+    body = failures.json()
+    assert len(body) == 1
+    assert body[0]["failure_reason"] == "acceptance_criteria_missing"
+    assert body[0]["missing_criteria_count"] == 2
+
+    runs = client.get("/runs", params={"status": "failed", "route": "implementer -> critic"})
+    assert runs.status_code == 200
+    assert len(runs.json()) == 1

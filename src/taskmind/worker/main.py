@@ -68,10 +68,12 @@ async def process_next_task(provider=None, registry=None) -> bool:
                 "criteria_hits": 0,
                 "matched_criteria": [],
                 "missing_criteria": task.acceptance_criteria or [],
+                "missing_criteria_count": len(task.acceptance_criteria or []),
                 "artifact_roles_present": sorted(artifacts.keys()),
                 "route_length": len(task.route or []),
                 "review_recommended": True,
                 "agent_was_necessary": len(task.route or []) > 1,
+                "failure_reason": "execution_error",
                 "notes": str(exc),
             }
             run.artifacts = artifacts
