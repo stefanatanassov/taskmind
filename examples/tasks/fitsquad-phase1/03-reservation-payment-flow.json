@@ -1,0 +1,17 @@
+{
+  "title": "FitSquad reservation and payment flow definition",
+  "description": "Define the Phase 1 reservation and payment flow with one clear choice at booking time: deposit or full payment. The system must support reservation creation, payment status tracking, email confirmations, and manual follow-up for any remaining payment. Do not introduce payment schedules, reminders, user accounts, or complex multi-step booking logic.",
+  "task_type": "analysis",
+  "risk_level": "high",
+  "acceptance_criteria": [
+    "define the reservation flow from form submission to payment outcome",
+    "define how deposit and full-payment choices are represented and tracked",
+    "define when reservation confirmation and payment confirmation emails are sent",
+    "identify the high-risk edge cases that Phase 1 still needs to handle simply"
+  ],
+  "required_artifacts": [
+    "plan",
+    "implementation",
+    "critique"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "title": "FitSquad Phase 1 data model and API contract",
+  "description": "Define the Phase 1 data model and API structure for packages, reservations, payment status, and basic availability enforcement. Keep the model intentionally minimal and aligned to manual business operations. The output should be implementation-ready and should not introduce contracts, invoicing, CRM entities, or advanced reporting.",
+  "task_type": "feature",
+  "risk_level": "medium",
+  "acceptance_criteria": [
+    "define the minimum core entities required for Phase 1",
+    "define the reservation state and payment status fields needed for deposit or full payment tracking",
+    "define the minimum public and admin API endpoints required for Phase 1",
+    "show how basic capacity enforcement prevents overbooking"
+  ],
+  "required_artifacts": [
+    "plan",
+    "implementation",
+    "critique"
+  ]
+}

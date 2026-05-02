@@ -1,0 +1,17 @@
+{
+  "title": "FitSquad admin MVP operations scope",
+  "description": "Define the smallest useful admin panel scope for Phase 1 reservation operations. Limit the scope to reservation visibility, contact details, package reference, participant count, and payment status with optional manual status updates. Exclude dashboards, finance reports, CRM behavior, and advanced workflow automation.",
+  "task_type": "analysis",
+  "risk_level": "medium",
+  "acceptance_criteria": [
+    "define the minimum reservation fields visible to staff",
+    "define the minimum actions staff need in Phase 1",
+    "define what should remain manual outside the system",
+    "keep the admin scope explicitly aligned to Phase 1 constraints"
+  ],
+  "required_artifacts": [
+    "plan",
+    "implementation",
+    "critique"
+  ]
+}

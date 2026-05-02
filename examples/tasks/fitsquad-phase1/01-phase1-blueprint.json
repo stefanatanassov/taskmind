@@ -1,0 +1,17 @@
+{
+  "title": "FitSquad Phase 1 product blueprint",
+  "description": "Define the smallest implementation-ready blueprint for FitSquad Tourism Platform Phase 1 only. Respect the explicit scope limits: public package pages, reservation submission, deposit-or-full payment choice, basic availability, confirmation emails, and minimal admin reservation management. Exclude contracts, invoicing, advanced finance, CRM, dashboards, promo logic, and user accounts.",
+  "task_type": "analysis",
+  "risk_level": "medium",
+  "acceptance_criteria": [
+    "state the exact Phase 1 feature set",
+    "identify the minimum user flow from package discovery to reservation confirmation",
+    "identify the minimum internal admin flow for reservation management",
+    "explicitly list out-of-scope items that must stay excluded"
+  ],
+  "required_artifacts": [
+    "plan",
+    "implementation",
+    "critique"
+  ]
+}
