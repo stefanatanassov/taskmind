@@ -76,6 +76,40 @@ Useful endpoints:
 - [http://localhost:8000/adaptation/proposals](http://localhost:8000/adaptation/proposals)
 - [http://localhost:8000/review-checkpoints](http://localhost:8000/review-checkpoints)
 
+## Supervisor mode
+
+`taskmind` can also expose its current state as files so an external master agent can supervise in a loop without direct API integration.
+
+Export the latest state:
+
+```bash
+./scripts/supervisor.sh export-state
+```
+
+Apply a supervisor decision from `supervisor/outbox/supervisor-response.yaml`:
+
+```bash
+./scripts/supervisor.sh apply-response
+```
+
+Run one export/apply cycle:
+
+```bash
+./scripts/supervisor.sh cycle
+```
+
+The default file layout is:
+
+```text
+supervisor/
+  state/
+  inbox/
+  outbox/
+  history/
+```
+
+The full protocol is documented in [docs/supervisor-mode.md](docs/supervisor-mode.md).
+
 ## Quickstart
 
 1. Copy the environment file:

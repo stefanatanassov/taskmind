@@ -115,3 +115,32 @@ class ReviewCheckpointRead(BaseModel):
 
 class ReviewCheckpointDecision(BaseModel):
     status: str
+
+
+class SupervisorTaskPayload(BaseModel):
+    title: str
+    description: str
+    task_type: str = "analysis"
+    risk_level: str = "medium"
+    acceptance_criteria: list[str] = Field(default_factory=list)
+    required_artifacts: list[str] = Field(default_factory=list)
+
+
+class SupervisorAction(BaseModel):
+    action_type: str
+    task_id: str | None = None
+    route_override: list[str] | None = None
+    proposal_id: str | None = None
+    checkpoint_id: str | None = None
+    status: str | None = None
+    review_notes: str | None = None
+    task: SupervisorTaskPayload | None = None
+    reason: str | None = None
+
+
+class SupervisorResponse(BaseModel):
+    task_id: str | None = None
+    decision: str | None = None
+    reasoning: list[str] = Field(default_factory=list)
+    actions: list[SupervisorAction] = Field(default_factory=list)
+    status: str = "ready_for_execution"

@@ -12,8 +12,9 @@ class Settings(BaseSettings):
     provider_api_key: str | None = None
     worker_poll_interval: int = 2
     agent_config_dir: str = "config/agents"
+    supervisor_dir: str = "supervisor"
 
-    model_config = SettingsConfigDict(env_prefix="TASKMIND_", case_sensitive=False)
+    model_config = SettingsConfigDict(env_prefix="TASKMIND_", case_sensitive=False, env_file=".env")
 
 
 @lru_cache(maxsize=1)
