@@ -1,8 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "Waiting for API readiness..."
+READY=0
+for _ in $(seq 1 60); do
+  if curl --fail --silent http://localhost:8000/readyz > /tmp/taskmind_readyz.json 2>/dev/null; then
+    READY=1
+    break
+  fi
+  sleep 2
+done
+
+if [ "${READY}" -ne 1 ]; then
+  echo "API did not become ready in time."
+  exit 1
+fi
+
 echo "Checking API readiness..."
-curl --fail --silent http://localhost:8000/readyz > /tmp/taskmind_readyz.json
 cat /tmp/taskmind_readyz.json
 echo
 
