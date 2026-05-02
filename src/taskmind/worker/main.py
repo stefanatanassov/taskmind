@@ -13,6 +13,7 @@ from taskmind.evaluation import evaluate_run
 from taskmind.models import Run, Task
 from taskmind.providers.base import ModelRequest
 from taskmind.providers.router import get_provider
+from taskmind.services.adaptation import ensure_review_checkpoint
 from taskmind.services.feedback import record_feedback_events
 
 
@@ -90,6 +91,7 @@ async def process_next_task(provider=None, registry=None) -> bool:
         }
         if runtime_profiles:
             record_feedback_events(session, task, run, runtime_profiles, run.evaluation)
+        ensure_review_checkpoint(session, task, run)
 
         session.add(task)
         session.add(run)

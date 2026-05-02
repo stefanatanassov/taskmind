@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
+from taskmind.models import AgentUsefulness
 from taskmind.providers.base import ModelResponse
 from taskmind.db import SessionLocal
 from taskmind.schemas import TaskCreate
@@ -42,6 +43,8 @@ def test_dashboard_page(client):
     assert "taskmind" in response.text
     assert "Agent usefulness" in response.text
     assert "Failed runs" in response.text
+    assert "Adaptation proposals" in response.text
+    assert "Review checkpoints" in response.text
 
 
 def test_analytics_endpoints(client):
@@ -112,3 +115,47 @@ def test_failure_analytics_endpoint(client):
     runs = client.get("/runs", params={"status": "failed", "route": "implementer -> critic"})
     assert runs.status_code == 200
     assert len(runs.json()) == 1
+
+
+def test_adaptation_and_review_endpoints(client):
+    with SessionLocal() as session:
+        session.add(
+            AgentUsefulness(
+                agent_id="critic_v1",
+                agent_role="critic",
+                total_runs=3,
+                accepted_runs=1,
+                average_usefulness=0.1,
+                last_usefulness=-0.1,
+            )
+        )
+        session.commit()
+
+    proposals = client.post("/adaptation/proposals/refresh")
+    assert proposals.status_code == 200
+    body = proposals.json()
+    assert any(item["proposal_type"] == "agent_deactivation" for item in body)
+
+    with SessionLocal() as session:
+        create_task(
+            session,
+            TaskCreate(
+                title="High risk task",
+                description="Needs human validation.",
+                task_type="feature",
+                risk_level="high",
+                acceptance_criteria=["one", "two", "three"],
+            ),
+        )
+    asyncio.run(process_next_task())
+
+    checkpoints = client.get("/review-checkpoints")
+    assert checkpoints.status_code == 200
+    checkpoint_body = checkpoints.json()
+    assert len(checkpoint_body) == 1
+    assert checkpoint_body[0]["checkpoint_type"] == "high_risk_validation"
+    assert checkpoint_body[0]["status"] == "pending"
+
+    decision = client.post(f"/review-checkpoints/{checkpoint_body[0]['id']}", json={"status": "approved"})
+    assert decision.status_code == 200
+    assert decision.json()["status"] == "approved"

@@ -10,7 +10,22 @@ from sqlalchemy.orm import Session
 from taskmind.config import get_settings
 from taskmind.db import Base, engine, get_session
 from taskmind.models import Run
-from taskmind.schemas import AgentUsefulnessRead, FeedbackEventRead, RunRead, TaskCreate, TaskRead
+from taskmind.schemas import (
+    AdaptationProposalRead,
+    AgentUsefulnessRead,
+    FeedbackEventRead,
+    ReviewCheckpointDecision,
+    ReviewCheckpointRead,
+    RunRead,
+    TaskCreate,
+    TaskRead,
+)
+from taskmind.services.adaptation import (
+    list_adaptation_proposals,
+    list_review_checkpoints,
+    refresh_adaptation_proposals,
+    update_review_checkpoint,
+)
 from taskmind.services.analytics import (
     build_failed_run_analytics,
     build_route_analytics,
@@ -55,7 +70,8 @@ def dashboard_html() -> str:
       .toolbar { display:flex; gap:12px; flex-wrap:wrap; margin-top: 18px; }
       .control { display:flex; flex-direction:column; gap:6px; min-width:200px; }
       label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
-      select { background:#0e1629; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+      select, button { background:#0e1629; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+      button { cursor:pointer; }
       table { width:100%; border-collapse: collapse; }
       th, td { padding: 12px 10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
       th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
@@ -112,8 +128,19 @@ def dashboard_html() -> str:
         <table><thead><tr><th>Route</th><th>Runs</th><th>Completed</th><th>Failed</th><th>Success rate</th><th>Coverage</th><th>Baseline</th><th>Delta vs baseline</th></tr></thead><tbody id="routes"></tbody></table>
       </div>
       <div class="section card">
+        <h2>Adaptation proposals</h2>
+        <div class="toolbar">
+          <button id="refresh-proposals" type="button">Refresh proposals</button>
+        </div>
+        <table><thead><tr><th>Type</th><th>Target</th><th>Priority</th><th>Status</th><th>Recommendation</th><th>Why</th></tr></thead><tbody id="proposals"></tbody></table>
+      </div>
+      <div class="section card">
         <h2>Failed runs</h2>
         <table><thead><tr><th>Task</th><th>Route</th><th>Reason</th><th>Missing criteria</th><th>Error summary</th></tr></thead><tbody id="failures"></tbody></table>
+      </div>
+      <div class="section card">
+        <h2>Review checkpoints</h2>
+        <table><thead><tr><th>Type</th><th>Status</th><th>Task</th><th>Run</th><th>Rationale</th></tr></thead><tbody id="checkpoints"></tbody></table>
       </div>
       <div class="section card">
         <h2>Recent feedback</h2>
@@ -127,6 +154,8 @@ def dashboard_html() -> str:
       let allFeedback = [];
       let allRoutes = [];
       let allFailures = [];
+      let allProposals = [];
+      let allCheckpoints = [];
 
       function routeLabel(route) {
         return Array.isArray(route) ? route.join(' -> ') : route;
@@ -204,19 +233,52 @@ def dashboard_html() -> str:
           </tr>`).join('');
       }
 
+      function renderProposals() {
+        document.getElementById('proposals').innerHTML = allProposals.map(proposal => `
+          <tr>
+            <td>${proposal.proposal_type}</td>
+            <td><div class="stack"><span>${proposal.target_kind}</span><span class="muted">${proposal.target_id}</span></div></td>
+            <td>${proposal.priority}</td>
+            <td>${proposal.status}</td>
+            <td>${proposal.recommendation.action ?? ''}</td>
+            <td>${proposal.rationale}</td>
+          </tr>`).join('');
+      }
+
+      function renderCheckpoints() {
+        document.getElementById('checkpoints').innerHTML = allCheckpoints.map(checkpoint => `
+          <tr>
+            <td>${checkpoint.checkpoint_type}</td>
+            <td>${checkpoint.status}</td>
+            <td>${checkpoint.payload.task_title ?? checkpoint.task_id ?? ''}</td>
+            <td>${checkpoint.run_id ? checkpoint.run_id.slice(0, 8) : ''}</td>
+            <td>${checkpoint.rationale}</td>
+          </tr>`).join('');
+      }
+
+      async function refreshProposals() {
+        const response = await fetch('/adaptation/proposals/refresh', { method: 'POST' });
+        allProposals = await response.json();
+        renderProposals();
+      }
+
       async function load() {
-        const [summary, agents, routes, feedback, runs, failures] = await Promise.all([
+        const [summary, agents, routes, feedback, runs, failures, proposals, checkpoints] = await Promise.all([
           fetch('/analytics/summary').then(r => r.json()),
           fetch('/analytics/agents').then(r => r.json()),
           fetch('/analytics/routes').then(r => r.json()),
           fetch('/feedback').then(r => r.json()),
           fetch('/runs').then(r => r.json()),
           fetch('/analytics/failures').then(r => r.json()),
+          fetch('/adaptation/proposals').then(r => r.json()),
+          fetch('/review-checkpoints').then(r => r.json()),
         ]);
         allRuns = runs;
         allFeedback = feedback;
         allRoutes = routes;
         allFailures = failures;
+        allProposals = proposals;
+        allCheckpoints = checkpoints;
 
         document.getElementById('summary').innerHTML = [
           ['Tasks', summary.total_tasks],
@@ -241,6 +303,8 @@ def dashboard_html() -> str:
         renderRuns();
         renderRoutes();
         renderFailures();
+        renderProposals();
+        renderCheckpoints();
         renderFeedback();
       }
 
@@ -251,6 +315,7 @@ def dashboard_html() -> str:
         renderFailures();
       });
       document.getElementById('feedback-agent').addEventListener('change', renderFeedback);
+      document.getElementById('refresh-proposals').addEventListener('click', refreshProposals);
       load();
     </script>
   </body>
@@ -350,3 +415,41 @@ def analytics_failures_endpoint(
     session: Session = Depends(get_session),
 ) -> list[dict]:
     return build_failed_run_analytics(session, route=route, limit=limit)
+
+
+@app.get("/adaptation/proposals", response_model=list[AdaptationProposalRead])
+def adaptation_proposals_endpoint(
+    status: str | None = Query(default=None),
+    session: Session = Depends(get_session),
+) -> list[AdaptationProposalRead]:
+    proposals = list_adaptation_proposals(session, status=status)
+    return [AdaptationProposalRead.model_validate(item) for item in proposals]
+
+
+@app.post("/adaptation/proposals/refresh", response_model=list[AdaptationProposalRead])
+def refresh_adaptation_proposals_endpoint(session: Session = Depends(get_session)) -> list[AdaptationProposalRead]:
+    proposals = refresh_adaptation_proposals(session)
+    return [AdaptationProposalRead.model_validate(item) for item in proposals]
+
+
+@app.get("/review-checkpoints", response_model=list[ReviewCheckpointRead])
+def review_checkpoints_endpoint(
+    status: str | None = Query(default=None),
+    session: Session = Depends(get_session),
+) -> list[ReviewCheckpointRead]:
+    checkpoints = list_review_checkpoints(session, status=status)
+    return [ReviewCheckpointRead.model_validate(item) for item in checkpoints]
+
+
+@app.post("/review-checkpoints/{checkpoint_id}", response_model=ReviewCheckpointRead)
+def update_review_checkpoint_endpoint(
+    checkpoint_id: str,
+    payload: ReviewCheckpointDecision,
+    session: Session = Depends(get_session),
+) -> ReviewCheckpointRead:
+    if payload.status not in {"approved", "rejected", "pending"}:
+        raise HTTPException(status_code=400, detail="Unsupported checkpoint status")
+    checkpoint = update_review_checkpoint(session, checkpoint_id, payload.status)
+    if checkpoint is None:
+        raise HTTPException(status_code=404, detail="Checkpoint not found")
+    return ReviewCheckpointRead.model_validate(checkpoint)

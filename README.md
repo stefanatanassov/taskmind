@@ -73,6 +73,8 @@ Useful endpoints:
 - [http://localhost:8000/analytics/agents](http://localhost:8000/analytics/agents)
 - [http://localhost:8000/analytics/routes](http://localhost:8000/analytics/routes)
 - [http://localhost:8000/analytics/failures](http://localhost:8000/analytics/failures)
+- [http://localhost:8000/adaptation/proposals](http://localhost:8000/adaptation/proposals)
+- [http://localhost:8000/review-checkpoints](http://localhost:8000/review-checkpoints)
 
 ## Quickstart
 
@@ -203,6 +205,8 @@ The current MVP now exposes:
 - route-level success and coverage analytics with simpler-route comparison when a cohort baseline exists
 - per-agent usefulness aggregates backed by feedback events
 - failed-run inspection with failure reason, missing criteria count, and error summaries
+- adaptation proposals generated from route underperformance, repeated criteria misses, and low-value agents
+- human review checkpoints for high-risk or review-recommended runs
 - dashboard filters for run status, route, and feedback agent
 - run detail JSON at `/runs/{run_id}`
 
@@ -213,6 +217,8 @@ curl "http://localhost:8000/runs?status=failed"
 curl "http://localhost:8000/runs?route=implementer%20-%3E%20critic"
 curl "http://localhost:8000/feedback?agent_role=critic"
 curl "http://localhost:8000/analytics/failures?limit=10"
+curl -X POST "http://localhost:8000/adaptation/proposals/refresh"
+curl "http://localhost:8000/review-checkpoints"
 ```
 
 ## Agent definition philosophy
@@ -273,7 +279,7 @@ docker compose -f docker-compose.yml -f docker-compose.ollama.yml down -v
 
 ## Next milestones
 
-- add adaptation proposals from historical feedback
 - add benchmark tasks and replayable task packs
 - add benchmark-friendly provider comparison views
-- add explicit human review checkpoints for higher-risk tasks
+- add richer proposal types for material and prompt tuning
+- add proposal acceptance workflows and audit notes

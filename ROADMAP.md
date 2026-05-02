@@ -15,7 +15,7 @@ This roadmap reflects the actual current state of `taskmind`, not just the origi
 - onboarding docs and guide-agent example
 - local tests and CI smoke validation
 
-The next priority is still learning and observability, but the base `v0.2` layer is now in place:
+The next priority is guided adaptation on top of the completed feedback layer:
 
 - can the system show which routes add value?
 - can it show which agents are worth keeping?
@@ -58,15 +58,25 @@ Success criteria:
 - you can see repeated failure patterns
 - you can compare simple routes against multi-agent routes
 
-## v0.3 After that: Guided adaptation
+## v0.3 In Progress: Guided adaptation
 
 Goal: recommend improvements without handing control to autonomous self-rewrite.
 
-- add adaptation proposals
-- suggest route changes based on historical outcomes
-- suggest prompt or material improvements
-- suggest agent deactivation for consistently low-value roles
-- add explicit human review checkpoints for adaptation decisions
+Completed in this slice:
+
+- adaptation proposal storage and API
+- route-change proposals from historical outcomes
+- low-value agent review proposals
+- material review proposals from repeated criteria misses
+- explicit human review checkpoints for high-risk or review-recommended runs
+- checkpoint decision endpoint for approve/reject/pending flow
+
+Still remaining in v0.3:
+
+- richer proposal types for prompt and material tuning
+- proposal acceptance workflow with audit notes
+- review checkpoints attached to more policy classes
+- dashboard controls for checkpoint decisions and proposal lifecycle
 
 Success criteria:
 
@@ -101,10 +111,10 @@ Success criteria:
 
 The next concrete iteration should implement:
 
-1. adaptation proposal storage and API
-2. recommendation rules for route changes and low-value agents
-3. provider and route benchmark task packs
-4. optional review checkpoints for higher-risk tasks
+1. provider and route benchmark task packs
+2. richer proposal rules for prompt and material tuning
+3. proposal acceptance workflow and audit notes
+4. checkpoint controls in the dashboard
 5. docs for reading analytics and acting on feedback
 
 That is the shortest path from “visible learning MVP” to “guided adaptive system”.

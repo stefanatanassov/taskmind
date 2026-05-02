@@ -72,3 +72,39 @@ class AgentUsefulnessRead(BaseModel):
     last_updated: datetime
 
     model_config = {"from_attributes": True}
+
+
+class AdaptationProposalRead(BaseModel):
+    id: str
+    proposal_type: str
+    target_kind: str
+    target_id: str
+    status: str
+    priority: str
+    title: str
+    rationale: str
+    evidence: dict
+    recommendation: dict
+    dedupe_key: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class ReviewCheckpointRead(BaseModel):
+    id: str
+    task_id: str | None
+    run_id: str | None
+    checkpoint_type: str
+    status: str
+    rationale: str
+    payload: dict
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class ReviewCheckpointDecision(BaseModel):
+    status: str
